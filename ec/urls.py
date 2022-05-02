@@ -17,7 +17,9 @@ from django.urls import path
 
 from ec import views
 
+app_name = 'ec'
 urlpatterns = [
     path('login/', views.login, name='login'),
     path('index/', views.item_landing, name='index'),
+    path('register/', views.register, name='register'),
 ]
