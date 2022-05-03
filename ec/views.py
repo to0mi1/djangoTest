@@ -1,3 +1,4 @@
+import json
 import logging
 
 import django
@@ -39,12 +40,14 @@ def item_landing(request):
         request.session['item_name'] = request.POST.get('item_name')
         return redirect('ec:index')
     else:
-        if request.session['item_name']:
+        if request.session.get('item_name'):
             form = SearchForm(initial={'item_name': request.session['item_name']})
         else:
             form = SearchForm()
+        items = services.find_item(request.user.id, request.session.get('item_name'))
         registerForm = RegisterForm()
-        return render(request, 'ec/index.html', {'form': form, 'registerForm': registerForm})
+        return render(request, 'ec/index.html',
+                      {'form': form, 'registerForm': registerForm, 'items': json.dumps(items)})
 
 
 @login_required

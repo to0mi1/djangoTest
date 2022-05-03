@@ -15,8 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+import debug_toolbar
+
+from djangoTest import settings
 
 urlpatterns = [
     path('', include('ec.urls', namespace='ec')),
     path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]

@@ -8,6 +8,10 @@ class Item(models.Model):
     title = models.CharField(max_length=255)
     price = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now)
+    favorites = models.ManyToManyField(
+        get_user_model(),
+        through='Favorite'
+    )
 
 
 class Favorite(models.Model):
