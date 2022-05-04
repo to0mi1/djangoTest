@@ -35,3 +35,11 @@ def find_item(user_id, keyword):
         }]
     print(results)
     return results
+
+
+def create_favorite_relation(user_id, item_ids):
+    Favorite.objects.bulk_create([Favorite(author_id=user_id, item_id=item_id) for item_id in item_ids])
+
+
+def remove_favorite_relation(user_id, item_ids):
+    Favorite.objects.filter(item_id__in=item_ids, author_id=user_id).delete()

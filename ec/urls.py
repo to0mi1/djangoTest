@@ -22,4 +22,6 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('index/', views.item_landing, name='index'),
     path('register/', views.register, name='register'),
+    path('favorite/register', views.register_favorite, name='fav_register'),
+    path('favorite/unregister', views.unregister_favorite, name='fav_unregister'),
 ]

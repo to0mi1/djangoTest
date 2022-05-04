@@ -4,9 +4,9 @@ import logging
 import django
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-
 
 # Create your views here.
 from ec import services
@@ -53,5 +53,48 @@ def item_landing(request):
 @login_required
 def register(request):
     if request.method == 'POST':
-        services.create_item(request.POST.get('title'), int(request.POST.get('price')))
+        form = RegisterForm(request.POST)
+        services.create_item(form.title, int(form.price))
         return redirect('ec:index')
+
+
+@login_required
+@transaction.atomic
+def register_favorite(request):
+    """
+    お気に入り登録.
+
+    POST された ID 要素を ログインユーザーと紐付け、お気に入り登録済みとする。
+    :param request:
+    :return: 検索結果ページへのリダイレクト
+    """
+    if request.POST.get('id') is None:
+        return redirect('ec:index')
+    item_ids = convert_id_to_list(request.POST.get('id'))
+    services.create_favorite_relation(request.user.id, item_ids)
+    return redirect('ec:index')
+
+
+@login_required
+@transaction.atomic
+def unregister_favorite(request):
+    """
+    お気に入り削除.
+
+    POST された ID 要素を ログインユーザーと紐付け、お気に入り登録を外す。
+    :param request:
+    :return: 検索結果ページへのリダイレクト
+    """
+    if request.POST.get('id') is None:
+        return redirect('ec:index')
+    item_ids = convert_id_to_list(request.POST.get('id'))
+    services.remove_favorite_relation(request.user.id, item_ids)
+    return redirect('ec:index')
+
+
+def convert_id_to_list(ids):
+    if type(ids) is str:
+        item_ids = [int(ids)]
+    else:
+        item_ids = [int(item_id) for item_id in ids]
+    return item_ids

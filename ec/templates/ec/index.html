@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.20.0/dist/bootstrap-table.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'ec/common.css' %}">
     <title>Login</title>
-    <style>
-        .tab-content {
-            width: 40%;
-        }
-    </style>
+{#    <style>#}
+{#        .tab-content {#}
+{#            width: 40%;#}
+{#        }#}
+{#    </style>#}
 </head>
 <body>
 <header>
@@ -81,7 +81,7 @@
                             商品登録
                         </button>
                     </div>
-                    <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-content flex-fill" id="v-pills-tabContent">
                         <div class="tab-pane fade show active"
                              id="v-pills-home"
                              role="tabpanel"
@@ -89,7 +89,7 @@
                             <form method="post" action="{% url 'ec:index' %}">
                                 {% csrf_token %}
                                 <div class="row">
-                                    <div class="col-12">
+                                    <div class="col-6">
                                         <div class="mb-3 row">
                                             <label for="{{ form.item_name.id_for_label }}"
                                                    class="col-sm-2 col-form-label">商品名</label>
@@ -99,8 +99,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row justify-content-end">
-                                    <div class="col-2 align-self-end" style="text-align: right">
+                                <div class="row">
+                                    <div class="col-6 align-self-end" style="text-align: right">
                                         <button type="submit" class="btn btn-primary">検索</button>
                                     </div>
                                 </div>
@@ -110,7 +110,23 @@
                              id="v-pills-profile"
                              role="tabpanel"
                              aria-labelledby="v-pills-profile-tab">
-                            お気に入り💕
+                            <h4>お気に入り💕</h4>
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <form id="registerFavForm" method="post" action="{% url 'ec:fav_register' %}">
+                                        {% csrf_token %}
+                                        <button id="registerFav" class="btn btn-primary">お気に入り登録</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <form id="unregisterFavForm" method="post" action="{% url 'ec:fav_unregister' %}">
+                                        {% csrf_token %}
+                                        <button id="registerFav" class="btn btn-primary">お気に入り解除</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                         <div class="tab-pane fade"
                              id="v-pills-settings"
@@ -125,7 +141,7 @@
                             <form method="post" action="{% url 'ec:register' %}">
                                 {% csrf_token %}
                                 <div class="row">
-                                    <div class="col-12">
+                                    <div class="col-6">
                                         <div class="mb-3 row">
                                             <label for="{{ registerForm.title.id_for_label }}"
                                                    class="col-sm-2 col-form-label">商品名</label>
@@ -136,7 +152,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-12">
+                                    <div class="col-6">
                                         <div class="mb-3 row">
                                             <label for="{{ registerForm.price.id_for_label }}"
                                                    class="col-sm-2 col-form-label">価格</label>
@@ -146,8 +162,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row justify-content-end">
-                                    <div class="col-2 align-self-end" style="text-align: right">
+                                <div class="row">
+                                    <div class="col-6 align-self-end" style="text-align: right">
                                         <button type="submit" class="btn btn-primary">登録</button>
                                     </div>
                                 </div>
@@ -206,10 +222,61 @@
                 data: {{ items }}
             {% endautoescape %}
         });
+
+        $table.on("check.bs.table", (row, $element) => {
+            console.log("アイテムをチェックしました");
+            console.log($element);
+        });
     }
 
     $(function () {
         initTable();
+    });
+
+    $('form#registerFavForm').on('submit', (event) => {
+        console.log("お気に入り登録ボタンをクリックした");
+        let selections = $table.bootstrapTable('getSelections');
+        console.log(selections);
+        {# 登録済みのアイテム検知 #}
+        for (let selection of selections) {
+            if (selection['favorite'] === '★') {
+                alert("お気に入り登録済みのアイテムが選択されています。\nお気に入り未登録のアイテムのみを選択してください。");
+                return false;
+            }
+        }
+        {# 送信データの生成 #}
+        let $form = $('form#registerFavForm');
+        for (let selection of selections) {
+            $form.append($("<input>", {
+                name: 'id',
+                type: 'hidden',
+                value: selection['id'],
+            }));
+        }
+        return true;
+    });
+
+    $('form#unregisterFavForm').on('submit', (event) => {
+        console.log("お気に入り登録ボタンをクリックした");
+        let selections = $table.bootstrapTable('getSelections');
+        console.log(selections);
+        {# 登録済みのアイテム検知 #}
+        for (let selection of selections) {
+            if (selection['favorite'] === '☆') {
+                alert("お気に入り未登録のアイテムが選択されています。\nお気に入り登録済みのアイテムのみを選択してください。");
+                return false;
+            }
+        }
+        {# 送信データの生成 #}
+        let $form = $('form#unregisterFavForm');
+        for (let selection of selections) {
+            $form.append($("<input>", {
+                name: 'id',
+                type: 'hidden',
+                value: selection['id'],
+            }));
+        }
+        return true;
     });
 </script>
 </body>
