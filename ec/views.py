@@ -70,7 +70,7 @@ def register_favorite(request):
     """
     if request.POST.get('id') is None:
         return redirect('ec:index')
-    item_ids = convert_id_to_list(request.POST.get('id'))
+    item_ids = request.POST.getlist('id')
     services.create_favorite_relation(request.user.id, item_ids)
     return redirect('ec:index')
 
@@ -87,14 +87,6 @@ def unregister_favorite(request):
     """
     if request.POST.get('id') is None:
         return redirect('ec:index')
-    item_ids = convert_id_to_list(request.POST.get('id'))
+    item_ids = request.POST.getlist('id')
     services.remove_favorite_relation(request.user.id, item_ids)
     return redirect('ec:index')
-
-
-def convert_id_to_list(ids):
-    if type(ids) is str:
-        item_ids = [int(ids)]
-    else:
-        item_ids = [int(item_id) for item_id in ids]
-    return item_ids
